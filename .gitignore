@@ -7,3 +7,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.py[cd]
+
+# sqlite db file
+*.db

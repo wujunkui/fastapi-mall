@@ -1,6 +1,9 @@
 from fastapi import FastAPI
+from mall import user
 
 app = FastAPI()
+
+app.include_router(user.router, prefix="/user", tags=["user"])
 
 
 @app.get("/")

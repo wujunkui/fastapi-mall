@@ -7,10 +7,10 @@ from ..database import Base
 class Items(Base):
     __tablename__ = 'items'
 
-    id = Column(Integer, primary_key=True)
-    title = Column(String, index=True)
-    description = Column(String)
-    owner_uuid = Column(String, ForeignKey('users.uuid'))
+    id: int = Column(Integer, primary_key=True)
+    title: str = Column(String, index=True)
+    description: str = Column(String)
+    owner_uuid: str = Column(String, ForeignKey('users.uuid'))
 
     owner = relationship("User", back_populates="items")
 
@@ -18,7 +18,7 @@ class Items(Base):
 class ItemImages(Base):
     __tablename__ = 'item_images'
 
-    url = Column(String)
-    item_id = Column(Integer, ForeignKey('items.id'))
+    url: str = Column(String)
+    item_id: int = Column(Integer, ForeignKey('items.id'))
 
     item = relationship("Item", back_populates="item_images")
