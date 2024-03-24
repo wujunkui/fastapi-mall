@@ -19,6 +19,7 @@ class UserInfo(UserBase):
 
 class User(UserBase):
     id: int
+    uuid: str
     is_active: bool
 
     class Config:

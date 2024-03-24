@@ -1,24 +1,27 @@
-from sqlalchemy import Integer, String, Column, Boolean, ForeignKey
+from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
-from ..database import Base
+from database import Base
 
 
-class Items(Base):
+class Item(Base):
     __tablename__ = 'items'
 
-    id: int = Column(Integer, primary_key=True)
-    title: str = Column(String, index=True)
-    description: str = Column(String)
-    owner_uuid: str = Column(String, ForeignKey('users.uuid'))
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(index=True)
+    description: Mapped[str]
+    owner_uuid: Mapped[str] = mapped_column(ForeignKey('users.uuid'))
 
     owner = relationship("User", back_populates="items")
 
 
-class ItemImages(Base):
+class ItemImage(Base):
     __tablename__ = 'item_images'
 
-    url: str = Column(String)
-    item_id: int = Column(Integer, ForeignKey('items.id'))
+    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)
+    md5: Mapped[str] = mapped_column(String, index=True, unique=True)
+    url: Mapped[str]
+    item_id: Mapped[int] = mapped_column(ForeignKey('items.id'))
 
-    item = relationship("Item", back_populates="item_images")
+    item: Mapped[Item] = relationship(back_populates="item_images")
