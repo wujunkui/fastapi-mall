@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 
-import jwt
+from jose import jwt
 from passlib.context import CryptContext
 
 import setting
@@ -19,7 +19,7 @@ class UtilService:
         return pwd_context.hash(password)
 
     @staticmethod
-    def create_access_token(data: dict, expires_delta: timedelta|None = None) -> str:
+    def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.now() + expires_delta

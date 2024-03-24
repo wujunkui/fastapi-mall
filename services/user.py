@@ -1,13 +1,12 @@
 import uuid
-
-import jwt
 import logging
+import setting
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
+from jose import jwt, JWTError
 
-import setting
 from model.users import User
 from schemas.user import UserCreate
 from services.utils import UtilService
@@ -27,7 +26,7 @@ class UserService:
     @staticmethod
     async def create_user(user: UserCreate, db: Session) -> User:
         hashed_password = UtilService.get_password_hash(user.password)
-        db_user = User(email=user.email, hashed_password=hashed_password, uuid=str(uuid.uuid4()))
+        db_user = User(email=user.email, hashed_password=hashed_password, uuid=uuid.uuid4().hex)
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
@@ -51,6 +50,6 @@ class UserService:
             if not email:
                 raise credentials_exception
 
-        except jwt.exceptions.PyJWTError:
+        except JWTError:
             raise credentials_exception
         return payload

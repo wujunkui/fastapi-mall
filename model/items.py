@@ -13,7 +13,7 @@ class Item(Base):
     description: Mapped[str]
     owner_uuid: Mapped[str] = mapped_column(ForeignKey('users.uuid'))
 
-    owner = relationship("User", back_populates="items")
+    # owner = relationship("User", back_populates="items")
 
 
 class ItemImage(Base):
@@ -24,4 +24,4 @@ class ItemImage(Base):
     url: Mapped[str]
     item_id: Mapped[int] = mapped_column(ForeignKey('items.id'))
 
-    item: Mapped[Item] = relationship(back_populates="item_images")
+    # item: Mapped[Item] = relationship(back_populates="item_images")

@@ -1,16 +1,10 @@
 from fastapi import FastAPI
-from mall import user
+from fastapi.staticfiles import StaticFiles
+from mall import user, upload
 
 app = FastAPI()
 
 app.include_router(user.router, prefix="/user", tags=["user"])
+app.include_router(upload.router, prefix="/upload", tags=["upload"])
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.mount("/static", StaticFiles(directory="static"), name="static")
