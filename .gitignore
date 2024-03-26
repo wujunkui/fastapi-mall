@@ -1,5 +1,6 @@
 .venv/
 .idea/
+static/images/upload
 
 # ---> Python
 # Byte-compiled / optimized / DLL files

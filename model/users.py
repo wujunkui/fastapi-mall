@@ -1,11 +1,11 @@
 from sqlalchemy import Integer, String, Column, Boolean
 from sqlalchemy.orm import relationship
 
-from database import Base
+from model import BaseModel
 
 
-class User(Base):
-    __tablename__ = "users"
+class User(BaseModel):
+    __tablename__ = "user"
     id = Column(Integer, autoincrement=True, primary_key=True)
     uuid = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)

@@ -8,24 +8,27 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from database import get_db_session
-from model.items import ItemImage
+from model.public import Image
 
 router = APIRouter()
 
 
 @router.post("/images")
-async def upload_image(file: UploadFile, db: Session = Depends(get_db_session)):
+async def upload_image(file: UploadFile, item_id: int, db: Session = Depends(get_db_session)):
     content = await file.read()
     md5 = hashlib.md5(content).hexdigest()
     logger.debug(f"md5: {md5}")
-    exist_file: ItemImage = db.scalars(select(ItemImage).where(ItemImage.md5 == md5)).first()
+    exist_file: Image = db.scalars(select(Image).where(Image.md5 == md5)).first()
     if not exist_file:
-        # todo insert into table
         file_suffix = file.filename.split(".")[-1]
         logger.debug(f"file suffix: {file_suffix}")
         file_new_name = f"{md5}.{file_suffix}"
-        async with aiofiles.open(Path('.') / 'static/images/upload' / file_new_name, "wb") as f:
+        file_path_str = Path('.') / 'static/images/upload' / file_new_name
+        async with aiofiles.open(file_path_str, "wb") as f:
             await f.write(content)
-        images = ItemImage(md5=md5)
-
+        image = Image(md5=md5, url=file_path_str, item_id=item_id)
+        db.add(image)
+        db.commit()
+        db.refresh(image)
+        exist_file = image
     return exist_file

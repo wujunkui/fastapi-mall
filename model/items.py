@@ -1,27 +1,37 @@
+from typing import List
+
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from model import BaseModel
+from model.public import Image
 
 
-class Item(Base):
-    __tablename__ = 'items'
+class Item(BaseModel):
+    __tablename__ = 'item'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(index=True)
+    price: Mapped[int]
     description: Mapped[str]
-    owner_uuid: Mapped[str] = mapped_column(ForeignKey('users.uuid'))
+    shop_uuid: Mapped[str] = mapped_column(ForeignKey('shop.uuid'))
+
+    shop: Mapped["Shop"] = relationship(back_populates="item")
+    images: Mapped["Image"] = relationship(back_populates="item")
 
     # owner = relationship("User", back_populates="items")
 
 
-class ItemImage(Base):
-    __tablename__ = 'item_images'
+class Shop(BaseModel):
+    __tablename__ = "shop"
 
-    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)
-    md5: Mapped[str] = mapped_column(String, index=True, unique=True)
-    url: Mapped[str]
-    item_id: Mapped[int] = mapped_column(ForeignKey('items.id'))
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    uuid: Mapped[int] = mapped_column(unique=True, index=True)
+    name: Mapped[str]
+    address: Mapped[str]
+    opening_time: Mapped[str]
+    closing_time: Mapped[str]
 
-    # item: Mapped[Item] = relationship(back_populates="item_images")
+    images: Mapped[List["Image"]] = relationship(back_populates="shop")
+    items: Mapped[List["Item"]] = relationship(back_populates="shop")
