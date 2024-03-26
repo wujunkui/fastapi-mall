@@ -24,7 +24,7 @@ async def upload_image(file: UploadFile, db: Session = Depends(get_db_session)):
         file_suffix = file.filename.split(".")[-1]
         logger.debug(f"file suffix: {file_suffix}")
         file_new_name = f"{md5}.{file_suffix}"
-        async with aiofiles.open(Path('.') / 'static/images' / file_new_name, "wb") as f:
+        async with aiofiles.open(Path('.') / 'static/images/upload' / file_new_name, "wb") as f:
             await f.write(content)
         images = ItemImage(md5=md5)
 
