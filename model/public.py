@@ -12,3 +12,13 @@ class Image(BaseModel):
     item_id: Mapped[int] = mapped_column(ForeignKey('item.id'))
 
     item: Mapped['Item'] = relationship(back_populates="images")
+
+
+class ShopImage(BaseModel):
+    __tablename__ = 'shop_image'
+
+    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)
+    md5: Mapped[str] = mapped_column(index=True, unique=True)
+    url: Mapped[str]
+    shop_id: Mapped[int] = mapped_column(ForeignKey('shop.id'))
+    shop: Mapped['Shop'] = relationship(back_populates="images")

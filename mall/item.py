@@ -35,6 +35,7 @@ def create_shop(shop: ShopParam, db: Session = Depends(get_db_session)):
     db.commit()
     db.refresh(db_shop)
     logger.debug(db_shop.items)
+    logger.debug(db_shop.images)
     return db_shop
 
 

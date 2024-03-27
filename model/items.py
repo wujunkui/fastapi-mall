@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Mapped, mapped_column
 
 from model import BaseModel
-from model.public import Image
+from model.public import Image, ShopImage
 from services.utils import UtilService
 
 
@@ -35,8 +35,9 @@ class Shop(BaseModel):
     opening_time: Mapped[str]
     closing_time: Mapped[str]
 
-    images: Mapped["Image"] = relationship(foreign_keys=[id], primaryjoin="Shop.id == Image.item_id")
-    items = relationship('Item', back_populates="shop")
+    # images: Mapped["Image"] = relationship(foreign_keys=[id], primaryjoin="Shop.id == Image.item_id")
+    images: Mapped[List["ShopImage"]] = relationship(back_populates="shop")
+    items: Mapped[List["Item"]] = relationship(back_populates="shop")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
