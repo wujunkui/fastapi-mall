@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta, datetime
 
 from jose import jwt
@@ -9,6 +10,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UtilService:
+
+    @staticmethod
+    def create_uuid():
+        return uuid.uuid4().hex
 
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
