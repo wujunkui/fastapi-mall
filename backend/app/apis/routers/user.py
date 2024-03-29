@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 import setting
+from apis.deps import SessionDep
 from database import get_db_session
 from schemas.user import UserCreate, UserLogin, User
 from services.user import UserService
@@ -29,7 +30,7 @@ async def get_current_user(token: str):
 
 
 @router.post("/users")
-async def create_user(user: UserCreate, db: Session = Depends(get_db_session)):
+async def create_user(user: UserCreate, db: SessionDep):
     existing_user = await UserService.get_user_by_email(user.email, db)
     if existing_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Email is already existing, please login")
@@ -38,7 +39,7 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db_session)):
 
 
 @router.post("/login")
-async def login(form: UserLogin, db: Session = Depends(get_db_session)):
+async def login(form: UserLogin, db: SessionDep):
     db_user = await UserService.get_user_by_email(form.email, db)
     if not db_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="user is not registered")

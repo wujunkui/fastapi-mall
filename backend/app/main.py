@@ -1,11 +1,9 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from mall import user, upload, item
+from apis.main import api_router
 
 app = FastAPI()
 
-app.include_router(user.router, prefix="/user", tags=["user"])
-app.include_router(upload.router, prefix="/upload", tags=["upload"])
-app.include_router(item.router, prefix="/item", tags=["item"])
+app.include_router(api_router, prefix="/api")
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
