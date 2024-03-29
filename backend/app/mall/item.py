@@ -55,8 +55,11 @@ async def get_shop_detail(shop_uuid: str, db: Session = Depends(get_db_session))
 
 
 @router.put("/shops/{shop_uuid}")
-def update_shop(shop_uuid: str):
-    pass
+def update_shop(shop_uuid: str, shop: ShopParam, db: Session = Depends(get_db_session)):
+    db_shop = db.scalars(select(Shop).where(Shop.uuid == shop_uuid)).first()
+    if not db_shop:
+        raise HTTPException(detail="shop not found", status_code=404)
+    
 
 
 @router.delete("/shops/{shop_uuid}")
