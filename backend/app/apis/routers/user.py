@@ -1,11 +1,9 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
 import setting
 from apis.deps import SessionDep
-from database import get_db_session
 from schemas.user import UserCreate, UserLogin, User
 from services.user import UserService
 from services.utils import UtilService
@@ -14,8 +12,7 @@ router = APIRouter()
 
 
 @router.get("/users")
-async def get_current_user(token: str):
-    db = next(get_db_session())
+async def get_current_user(token: str, db: SessionDep):
     token_data = UserService.get_user_by_token(token)
     invalid_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     if not token_data:
@@ -35,7 +32,7 @@ async def create_user(user: UserCreate, db: SessionDep):
     if existing_user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Email is already existing, please login")
     user = await UserService.create_user(user, db)
-    return user
+    return user.model_dump(exclude={"hashed_password"})
 
 
 @router.post("/login")
