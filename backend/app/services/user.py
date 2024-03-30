@@ -3,7 +3,7 @@ import logging
 import setting
 
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlmodel import Session, col, select
 from starlette import status
 from jose import jwt, JWTError
 
@@ -34,7 +34,7 @@ class UserService:
 
     @staticmethod
     async def get_user_by_email(email: str, db: Session) -> User | None:
-        existing_user = db.query(User).filter(User.email == email).first()
+        existing_user = db.exec(select(User).where(User.email == email)).first()
         return existing_user
 
     @staticmethod

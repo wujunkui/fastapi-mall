@@ -11,8 +11,6 @@ from services.utils import UtilService
 
 
 class Item(BaseModel):
-    __tablename__ = 'item'
-
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(index=True)
     price: Mapped[int]
@@ -26,8 +24,6 @@ class Item(BaseModel):
 
 
 class Shop(BaseModel):
-    __tablename__ = "shop"
-
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     uuid: Mapped[int] = mapped_column(unique=True, index=True)
     name: Mapped[str]
