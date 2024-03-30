@@ -1,35 +1,24 @@
-from dataclasses import dataclass
 from typing import Optional
 
 from loguru import logger
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi import Depends
-from sqlmodel import select, Session
+from sqlmodel import select, Session, col, func
 from starlette import status
 
 from database import get_db_session
-from apis.deps import SessionDep
-from model.items import Shop, Item
-from schemas.items import ShopParam, ItemCreate
+from apis.deps import SessionDep, PageParamDep
+from model.items import Shop, Item, ItemBase, ItemsOut, ItemOut
+from schemas.items import ShopParam
 
 router = APIRouter()
 
 
-@dataclass
-class PageParam:
-    page: int = Query(default=1, description="")
-    size: int = Query(default=10)
-
-    @property
-    def offset(self):
-        return (self.page - 1) * self.size
-
-
 @router.get("/shops")
-def get_shops(page: PageParam = Depends(), kw: Optional[str] = None, db: Session = Depends(get_db_session)):
+def get_shops(page: PageParamDep, kw: Optional[str] = None, db: Session = Depends(get_db_session)):
     stmt = select(Shop).limit(page.size).offset(page.offset)
     if kw:
-        stmt = stmt.where(Shop.name.ilike(f"%{kw}"))
+        stmt = stmt.where(col(Shop.name).ilike(f"%{kw}"))
     shops = db.scalars(stmt).all()
     return {"shops": shops}
 
@@ -62,7 +51,7 @@ def update_shop(shop_uuid: str, shop: ShopParam, db: SessionDep):
         raise HTTPException(detail="shop not found", status_code=404)
 
     update_dict = shop.model_dump(exclude_unset=True)
-    db_shop.update(update_dict)
+    db_shop.sqlmodel_update(update_dict)
     db.add(db_shop)
     db.commit()
     db.refresh(db_shop)
@@ -78,17 +67,22 @@ def delete_shop(shop_uuid: str, db: Session = Depends(get_db_session)):
     return {"detail": "shop deleted"}
 
 
-@router.get("")
-def get_items(page: PageParam, db: SessionDep, kw: str | None = None):
+@router.get("/items", response_model=ItemsOut)
+def get_items(page: PageParamDep, db: SessionDep, kw: str | None = None):
     stmt = select(Item).offset(page.offset).limit(page.size)
+    count_stmt = select(func.count()).select_from(Item)
     if kw:
-        stmt = stmt.where(Item.title.ilike(f"%{kw}%"))
+        where_clause = col(Item.title).ilike(f"%{kw}%")
+        stmt = stmt.where(where_clause)
+        count_stmt = count_stmt.where(where_clause)
     items = db.exec(stmt).all()
-    return items
+    logger.debug(items)
+    count = db.exec(count_stmt).one()
+    return ItemsOut(data=items, count=count)
 
 
-@router.post("/items")
-def create_item(item: ItemCreate, db: SessionDep):
+@router.post("/items", response_model=ItemOut)
+def create_item(item: ItemBase, db: SessionDep):
     shop = db.exec(select(Shop).where(Shop.uuid == item.shop_uuid)).first()
     if not shop:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="shop not found")
@@ -101,4 +95,27 @@ def create_item(item: ItemCreate, db: SessionDep):
     db.commit()
     db.refresh(db_item)
     logger.debug(db_item.shop)
-    return db_item
+    return ItemsOut.from_orm(db_item)
+
+
+@router.put("/items/{item_id}", response_model=ItemOut)
+def update_item(item_id: int, item_in: ItemBase, db: SessionDep):
+    item = db.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="item is not found")
+    update_dict = item_in.model_dump(exclude_unset=True)
+    item.sqlmodel_update(update_dict)
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return ItemOut.from_orm(item)
+
+
+@router.delete("/items/{item_id}")
+def delete_item(item_id: int, db: SessionDep):
+    item = db.get(Item, item_id)
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="item is not found")
+    db.delete(item)
+    db.commit()
+    return "delete success"
