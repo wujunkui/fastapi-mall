@@ -22,7 +22,6 @@ async def get_current_user(token: str, db: SessionDep):
     if not db_user:
         raise invalid_exception
     user_info_res = User.from_orm(db_user)
-    # user_info_res.pop("hashed_password")
     return user_info_res
 
 
