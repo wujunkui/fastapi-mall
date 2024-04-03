@@ -4,8 +4,7 @@ from pathlib import Path
 from loguru import logger
 
 from fastapi import APIRouter, UploadFile, Depends
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlmodel import Session, select
 
 from database import get_db_session
 from model.public import Image
