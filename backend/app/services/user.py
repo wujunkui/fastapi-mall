@@ -1,6 +1,5 @@
 import uuid
 import logging
-import setting
 
 from fastapi import HTTPException
 from sqlmodel import Session, col, select
@@ -10,6 +9,7 @@ from jose import jwt, JWTError
 from model.users import User
 from schemas.user import UserCreate
 from services.utils import UtilService
+from setting import settings
 
 
 class UserService:
@@ -45,7 +45,7 @@ class UserService:
             headers={"WWW-Authenticate": "Bearer"},
         )
         try:
-            payload = jwt.decode(token, setting.SECRET_KEY, algorithms=[setting.ALGORITHM])
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
             email: str = payload.get("sub")
             if not email:
                 raise credentials_exception

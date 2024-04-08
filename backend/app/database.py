@@ -2,13 +2,11 @@ from collections.abc import Generator
 
 from sqlmodel import Session, create_engine
 
-
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "sqlite:///./sql_app.db"
-# SQLALCHEMY_DATABASE_URL = "postgresql://user:password@postgresserver/db"
+from setting import settings
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

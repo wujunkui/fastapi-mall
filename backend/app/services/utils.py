@@ -4,7 +4,7 @@ from datetime import timedelta, datetime
 from jose import jwt
 from passlib.context import CryptContext
 
-import setting
+from setting import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -31,5 +31,5 @@ class UtilService:
         else:
             expire = datetime.now() + timedelta(minutes=15)
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, setting.SECRET_KEY, algorithm=setting.ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return encoded_jwt
